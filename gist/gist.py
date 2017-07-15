@@ -12,6 +12,7 @@ import os.path
 import urllib2
 import vim
 import webbrowser
+import pyperclip
 
 
 def main(args):
@@ -50,6 +51,7 @@ def main(args):
 
     url = response_json["html_url"]
     open_url(url, browser=name.open_browser)
+    copy_url(url)
     save_url(url)
 
 
@@ -124,6 +126,18 @@ def open_url(url, browser=False):
     if browser:
         webbrowser.open_new_tab(url)
 
+def copy_url(url):
+    """
+    Copy the URL to the system clipboard
+    """
+    if not url:
+        print("No Gist URL")
+        return
+
+    vim.command("redraw!")
+    print("Copied To Clipboard: " + url)
+
+    pyperclip.copy(url)
 
 def get_description():
     """
@@ -195,6 +209,7 @@ if __name__ == "__main__":
     parser.add_argument('--line2', type=int, metavar='end')
     private_default = vim.vars.get("gist_default_private", 0) == 1
     open_default = vim.vars.get("gist_open_url", 1) == 1
+    copy_default = vim.vars.get("gist_copy_deafult", 0) == 0
     parser.add_argument('-P', '--public', action='store_true',
                         dest='public', default=(not private_default))
     parser.add_argument('-p', '--private', action='store_false',
@@ -203,3 +218,5 @@ if __name__ == "__main__":
                         default=False)
     parser.add_argument('-o', '--open', action='store_true',
                         dest='open_browser', default=open_default)
+    parser.add_argument('-c', '--copy', action='store_true',
+                        dest='copy_url', default=copy_default)
